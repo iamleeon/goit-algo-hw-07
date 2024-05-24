@@ -1,5 +1,5 @@
 from collections import UserDict
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 
 class Field:
@@ -66,7 +66,7 @@ class Record:
 
     def __str__(self):
         return (f"Contact name: {self.name.value}. Phones: {'; '.join(p.value for p in self.phones)}. "
-                f"Birthday: {self.birthday}")
+                f"Birthday: {self.birthday}.")
 
 
 class AddressBook(UserDict):
@@ -93,7 +93,14 @@ class AddressBook(UserDict):
                     birthday_this_year = datetime.strptime(str(user.birthday), "%d.%m.%Y").replace(year=today.year).date()
                     days_counter = (birthday_this_year - today).days
                     if 0 <= days_counter <= days:
-                        upcoming_birthdays += f"Contact name: {user.name}. Congratulation date: {birthday_this_year}\n"
+                        if birthday_this_year.weekday() >= 5:
+                            days_ahead = 0 - birthday_this_year.weekday()
+                            days_ahead += 7
+                            birthday_this_year = birthday_this_year + timedelta(days=days_ahead)
+                        birthday_this_year = datetime.strftime(birthday_this_year, "%d.%m.%Y")
+                        upcoming_birthdays += (f"Contact name: {user.name}. "
+                                               f"Birthday: {user.birthday}. "
+                                               f"Congratulation date: {birthday_this_year}.\n")
             return upcoming_birthdays
         except ValueError:
             return None
